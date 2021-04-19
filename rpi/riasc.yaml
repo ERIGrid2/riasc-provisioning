@@ -1,0 +1,10 @@
+hostname: rpi-test1
+
+
+token: 1234
+
+# Additional variables passed to Ansible
+variables:
+  test: 1234
+  some_other:
+  - variable
