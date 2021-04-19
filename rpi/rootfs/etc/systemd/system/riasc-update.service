@@ -1,0 +1,19 @@
+[Unit]
+Description=Update RIasC
+
+After=network-online.target
+Wants=network-online.target
+
+ConditionPathIsReadWrite=/etc
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+ExecStart=/usr/local/bin/riasc-update.sh
+
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=multi-user.target

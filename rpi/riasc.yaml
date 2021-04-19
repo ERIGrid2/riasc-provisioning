@@ -1,10 +1,21 @@
 hostname: rpi-test1
 
+ansible:
 
-token: 1234
+  # A repository containing ansible playbooks which will be fetched via ansible-pull
+  url: https://github.com/erigrid2/k3s-ansible.git
 
-# Additional variables passed to Ansible
-variables:
-  test: 1234
-  some_other:
-  - variable
+  # The playbook which should be executed
+  playbook: site.yml
+
+  # A path to the Ansible inventory within the repo from above
+  inventory: inventory/erigrid/hosts.yml
+
+#   extra_args:
+#   - --only-if-changed
+
+  # Additional variables passed to Ansible
+  variables:
+
+    # Replace this token with the token provided by your RIasC provider
+    token: changeme
