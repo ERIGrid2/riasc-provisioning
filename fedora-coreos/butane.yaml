@@ -1,0 +1,42 @@
+variant: fcos
+version: 1.3.0
+
+systemd:
+  units:
+  - name: riasc-update.service
+    enabled: true
+    contents: |
+      [Unit]
+      Description=Update RIasC
+
+      After=network-online.target
+      Wants=network-online.target
+
+      ConditionPathIsReadWrite=/etc
+
+      [Service]
+      Type=oneshot
+      RemainAfterExit=yes
+
+      ExecStart=/usr/local/bin/riasc-update.sh
+
+      StandardOutput=journal+console
+      StandardError=journal+console
+
+      [Install]
+      WantedBy=multi-user.target
+
+storage:
+  files:
+  - path: /etc/hostname
+    mode: 0644
+    contents:
+      inline: riasc-agent
+
+  - path: /usr/local/bin/riasc-update.sh
+    mode: 0555
+    overwrite: false
+    contents:
+      source:
+        local: common/riasc-update.sh
+
