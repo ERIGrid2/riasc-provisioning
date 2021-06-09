@@ -9,8 +9,19 @@ IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_l
 
 RIASC_IMAGE_FILE=${IMAGE_FILE/raspios/riasc-raspios}
 
-MOUNT_DIR="$(pwd)/mount"
-BOOT_DIR="${MOUNT_DIR}/boot"
+function check_command() {
+	if ! command -v $1 &> /dev/null; then
+		echo "$1 could not be found"
+		exit
+	fi
+}
+
+# Check that required commands exist
+echo "Check if required commands are installed..."
+check_command guestfish
+check_command wget
+check_command unzip
+check_command zip
 
 # Download image
 if [ ! -f ${IMAGE_FILE}.zip ]; then
