@@ -2,6 +2,8 @@
 
 set -e
 
+CONFIG_FILE=${CONFIG_FILE:-/boot/riasc.yaml}
+
 # Tee output to syslog
 exec 1> >(logger -st "riasc-update") 2>&1
 
@@ -42,7 +44,6 @@ esac
 
 # Helper functions
 function config() {
-	CONFIG_FILE=/boot/riasc.yaml
 
 	[ -f ${CONFIG_FILE} ] && yq eval "$@" ${CONFIG_FILE}
 }
@@ -51,6 +52,12 @@ function log() {
 	echo
 	echo -e "\e[32m###\e[0m $1"
 }
+
+# Validate config
+if ! yq eval true ${CONFIG_FILE} > /dev/null; then
+	echo "Failed to parse config file: ${CONFIG_FILE}"
+	exit -1
+fi
 
 # Wait for internet connectivity
 SERVER="https://fein-aachen.org"
