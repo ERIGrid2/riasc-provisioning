@@ -39,12 +39,12 @@ if [ ! -f ${IMAGE_FILE}.zip ]; then
 fi
 
 # Unzip image
-if [ ! -f ${RIASC_IMAGE_FILE}.img ]; then
+if [ ! -f ${IMAGE_FILE}.img ]; then
 	echo "Unzipping image..."
 	unzip ${IMAGE_FILE}.zip
-
-	mv ${IMAGE_FILE}.img ${RIASC_IMAGE_FILE}.img
 fi
+
+cp ${IMAGE_FILE}.img ${RIASC_IMAGE_FILE}.img
 
 # Prepare config
 cp ../common/riasc.yaml riasc.yaml
