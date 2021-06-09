@@ -47,9 +47,15 @@ while (( COUNTER < TIMEOUT )) && ! wget -q -O /dev/null ${SERVER}; do
 done
 
 if (( COUNTER == TIMEOUT )); then
-	echo -e "Failed to get internet connectivity"
+	echo -e "Failed to get internet connectivity. Aborting"
 	exit -1
 fi
+
+echo ""
+echo "#########################"
+echo "# Starting RIasC update #"
+echo "#########################"
+echo ""
 
 
 # Install yq
@@ -63,21 +69,23 @@ if ! command -v yq &> /dev/null; then
 fi
 
 # Install Ansible
+echo "Installing required packages"
 if ! command -v ansible &> /dev/null; then
 	case ${OS} in
 		Fedora|CentOS|'Red Hat Enterprise Linux')
-			yum install -y ansible git
+			yum install -qy ansible git
 			;;
 
 		Debian|Ubuntu|'Raspbian GNU/Linux')
-			apt-get update
-			apt-get install -y ansible git
+			apt-get update -qq
+			apt-get install -qq ansible git
 			;;
 	esac
 fi
 
 # Update system hostname to match Ansible inventory
 HOSTNAME=$(config .hostname)
+echo "Updating hostname to: ${HOSTNAME}"
 echo ${HOSTNAME} > /etc/hostname
 sed -ie "s/raspberrypi/${HOSTNAME}/g" /etc/hosts
 hostnamectl set-hostname ${HOSTNAME}
@@ -92,4 +100,16 @@ ansible-pull \
 	$(config '.ansible.extra_args // [ ] | join(" ")') \
 	$(config .ansible.playbook)
 
-echo "RIasC update completed."
+# Print node details
+echo "Operating System: ${OS}"
+echo "Operating System Version: ${VER}"
+echo "Architecture: ${ARCH}"
+echo "Hostname: ${HOSTNAME}"
+echo "Full config:"
+config .
+
+echo ""
+echo "########################################"
+echo "# RIasC update completed successfully! #"
+echo "########################################"
+echo ""
