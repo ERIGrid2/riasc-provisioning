@@ -36,6 +36,22 @@ function config() {
 	[ -f ${CONFIG_FILE} ] && yq eval "$@" ${CONFIG_FILE}
 }
 
+# Wait for internet connectivity
+SERVER="https://fein-aachen.org"
+TIMEOUT=10
+COUNTER=0
+while (( COUNTER < TIMEOUT )) && ! wget -q -O /dev/null ${SERVER}; do
+    echo "Waiting for network..."
+    sleep 1
+    (( COUNTER++ ))
+done
+
+if (( COUNTER == TIMEOUT )); then
+	echo -e "Failed to get internet connectivity"
+	exit -1
+fi
+
+
 # Install yq
 if ! command -v yq &> /dev/null; then
 	YQ_BINARY="yq_linux_${ARCH}"
