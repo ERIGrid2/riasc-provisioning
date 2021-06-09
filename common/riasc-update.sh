@@ -58,18 +58,18 @@ if ! command -v yq &> /dev/null; then
 	YQ_VERSION="v4.7.0"
 	YQ_URL="https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY}"
 
-	wget ${YQ_URL} -O /usr/local/bin/yq
+	wget -q ${YQ_URL} -O /usr/local/bin/yq
 	chmod +x /usr/local/bin/yq
 fi
 
 # Install Ansible
 if ! command -v ansible &> /dev/null; then
 	case ${OS} in
-		Fedora|CentOS|Red Hat Enterprise Linux)
+		Fedora|CentOS|'Red Hat Enterprise Linux')
 			yum install -y ansible git
 			;;
 
-		Debian|Ubuntu)
+		Debian|Ubuntu|'Raspbian GNU/Linux')
 			apt-get update
 			apt-get install -y ansible git
 			;;
@@ -77,9 +77,11 @@ if ! command -v ansible &> /dev/null; then
 fi
 
 # Update system hostname to match Ansible inventory
-config .hostname > /etc/hostname
+HOSTNAME=$(config .hostname)
+echo ${HOSTNAME} > /etc/hostname
+sed -ie "s/raspberrypi/${HOSTNAME}/g" /etc/hosts
+hostnamectl set-hostname ${HOSTNAME}
 
-EXTRA_VARS=
 
 # Run Ansible playbook
 ansible-pull \
