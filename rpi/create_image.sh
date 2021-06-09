@@ -9,10 +9,10 @@ pushd ${SCRIPT_PATH}
 HOSTNAME="${1:-riasc-agent}"
 TOKEN="${2:-XXXXX}"
 
-IMAGE_FILE="2021-05-07-raspios-buster-armhf-lite"
 IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-05-28/${IMAGE_FILE}.zip"
 
-RIASC_IMAGE_FILE=${IMAGE_FILE/raspios/riasc-raspios}
+IMAGE_FILE="2021-05-07-raspios-buster-armhf-lite"
+RIASC_IMAGE_FILE="$(date +%Y-%m-%d)-riasc-raspios-buster-armhf-lite"
 
 function check_command() {
 	if ! command -v $1 &> /dev/null; then
