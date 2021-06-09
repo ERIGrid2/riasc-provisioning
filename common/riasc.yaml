@@ -1,3 +1,7 @@
+---
+# RIasC configuration file
+# See also: https://erigrid2.github.io/riasc/docs/setup/config
+
 # A unique hostname to identify the node
 hostname: riasc-agent # changeme!
 

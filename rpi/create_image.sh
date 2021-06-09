@@ -39,7 +39,7 @@ if [ ! -f ${IMAGE_FILE}.zip ]; then
 fi
 
 # Unzip image
-if [ ! -f ${IMAGE_FILE}.img ]; then
+if [ ! -f ${RIASC_IMAGE_FILE}.img ]; then
 	echo "Unzipping image..."
 	unzip ${IMAGE_FILE}.zip
 
@@ -91,6 +91,7 @@ EOF
 
 # Zip image
 echo "Zipping image..."
+rm -f ${RIASC_IMAGE_FILE}.zip
 zip ${RIASC_IMAGE_FILE}.zip ${RIASC_IMAGE_FILE}.img
 
 echo "Please write the new image to an SD card:"
