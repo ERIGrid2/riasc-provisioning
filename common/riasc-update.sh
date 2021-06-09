@@ -2,6 +2,17 @@
 
 set -e
 
+# Tee output to syslog
+exec 1> >(logger -st "riasc-update") 2>&1
+
+# TTY handling
+FG_TTY=$(fgconsole)
+TTY=$(tty | sed -n "s|/dev/tty\(.*\)|\1|p")
+if [ -n "${TTY}" ] && (( ${FG_TTY} != ${TTY} )); then
+	chvt ${TTY}
+	reset
+fi
+
 # Detect distro
 if [ -f /etc/os-release ]; then
 	# freedesktop.org and systemd
@@ -18,7 +29,7 @@ elif [ -f /etc/lsb-release ]; then
 	OS=$DISTRIB_ID
 	VER=$DISTRIB_RELEASE
 else
-	echo -e "Failed to determine distro"
+	echo "Failed to determine distro"
 	exit -1
 fi
 
@@ -36,6 +47,11 @@ function config() {
 	[ -f ${CONFIG_FILE} ] && yq eval "$@" ${CONFIG_FILE}
 }
 
+function log() {
+	echo
+	echo -e "\e[32m###\e[0m $1"
+}
+
 # Wait for internet connectivity
 SERVER="https://fein-aachen.org"
 TIMEOUT=10
@@ -47,19 +63,17 @@ while (( COUNTER < TIMEOUT )) && ! wget -q -O /dev/null ${SERVER}; do
 done
 
 if (( COUNTER == TIMEOUT )); then
-	echo -e "Failed to get internet connectivity. Aborting"
+	echo "Failed to get internet connectivity. Aborting"
 	exit -1
 fi
 
-echo ""
-echo "#########################"
-echo "# Starting RIasC update #"
-echo "#########################"
-echo ""
+
+log "Starting RIasC update at $(date)"
 
 
 # Install yq
 if ! command -v yq &> /dev/null; then
+	log "Installing yq"
 	YQ_BINARY="yq_linux_${ARCH}"
 	YQ_VERSION="v4.7.0"
 	YQ_URL="https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY}"
@@ -69,7 +83,7 @@ if ! command -v yq &> /dev/null; then
 fi
 
 # Install Ansible
-echo "Installing required packages"
+log "Installing git, ansible"
 if ! command -v ansible &> /dev/null; then
 	case ${OS} in
 		Fedora|CentOS|'Red Hat Enterprise Linux')
@@ -85,36 +99,43 @@ fi
 
 # Update system hostname to match Ansible inventory
 HOSTNAME=$(config .hostname)
-echo "Updating hostname to: ${HOSTNAME}"
+log "Updating hostname to: ${HOSTNAME}"
 echo ${HOSTNAME} > /etc/hostname
 sed -ie "s/raspberrypi/${HOSTNAME}/g" /etc/hosts
 hostnamectl set-hostname ${HOSTNAME}
 
 # Import GPG keys for verifying Ansible commits
-echo "Importing GPG keys for verify Ansible commits"
+log "Importing GPG keys for verify Ansible commits"
 gpg --keyserver keys.gnupg.net --recv-keys $(config '.ansible.keys | join(" ")')
 
 # Run Ansible playbook
-echo "Running Ansible playbook..."
+log "Running Ansible playbook..."
+ANSIBLE_FORCE_COLOR=1 \
 ansible-pull \
 	--verify-commit \
-	--accept-host-key \
 	--url $(config .ansible.url) \
 	--extra-vars $(config --tojson --indent 0 .ansible.variables) \
 	--inventory $(config .ansible.inventory) \
 	$(config '.ansible.extra_args // [ ] | join(" ")') \
-	$(config .ansible.playbook)
+	$(config '.ansible.playbook')
 
 # Print node details
+log "Node details:"
+echo
 echo "Operating System: ${OS}"
 echo "Operating System Version: ${VER}"
 echo "Architecture: ${ARCH}"
 echo "Hostname: ${HOSTNAME}"
+echo
 echo "Full config:"
-config .
+config --colors '... comments=""'
 
-echo ""
-echo "########################################"
-echo "# RIasC update completed successfully! #"
-echo "########################################"
-echo ""
+log "Finished RIasC update successfully at $(date)!"
+
+if [ -n "${TTY}" ]; then
+	echo ""
+	echo "Please press a key to return to the login..."
+	read
+
+	chvt ${FG_TTY}
+fi

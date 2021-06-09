@@ -2,6 +2,7 @@
 Description=Update RIasC
 
 After=network-online.target
+After=getty@tty2.service
 Wants=network-online.target
 
 ConditionPathIsReadWrite=/etc
@@ -12,8 +13,10 @@ RemainAfterExit=yes
 
 ExecStart=/usr/local/bin/riasc-update.sh
 
-StandardOutput=journal+console
-StandardError=journal+console
+StandardInput=tty
+TTYPath=/dev/tty2
+TTYReset=yes
+TTYVHangup=yes
 
 [Install]
 WantedBy=multi-user.target
