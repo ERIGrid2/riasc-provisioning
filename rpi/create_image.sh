@@ -3,8 +3,8 @@
 # Settings
 HOSTNAME="${1:-riasc-agent}"
 
-IMAGE_FILE="2021-03-04-raspios-buster-armhf-lite"
-IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-03-25/${IMAGE_FILE}.zip"
+IMAGE_FILE="2021-05-07-raspios-buster-armhf-lite"
+IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-05-28/${IMAGE_FILE}.zip"
 
 RIASC_IMAGE_FILE=${IMAGE_FILE/raspios/riasc-raspios}
 
