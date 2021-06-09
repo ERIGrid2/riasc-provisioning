@@ -90,9 +90,14 @@ echo ${HOSTNAME} > /etc/hostname
 sed -ie "s/raspberrypi/${HOSTNAME}/g" /etc/hosts
 hostnamectl set-hostname ${HOSTNAME}
 
+# Import GPG keys for verifying Ansible commits
+echo "Importing GPG keys for verify Ansible commits"
+gpg --keyserver keys.gnupg.net --recv-keys $(config '.ansible.keys | join(" ")')
 
 # Run Ansible playbook
+echo "Running Ansible playbook..."
 ansible-pull \
+	--verify-commit \
 	--accept-host-key \
 	--url $(config .ansible.url) \
 	--extra-vars $(config --tojson --indent 0 .ansible.variables) \

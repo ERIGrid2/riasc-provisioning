@@ -2,6 +2,9 @@
 hostname: riasc-agent # changeme!
 
 ansible:
+  # List of PGP keys which are used to verify the commits in the Ansible repo
+  keys:
+  - 9675EAC34897E6E2 # Steffen Vogel (RWTH)
 
   # A repository containing ansible playbooks which will be fetched via ansible-pull
   url: https://github.com/erigrid2/riasc-ansible.git
