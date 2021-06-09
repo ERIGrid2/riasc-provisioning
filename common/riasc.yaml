@@ -1,0 +1,25 @@
+# A unique hostname to identify the node
+hostname: riasc-agent # changeme!
+
+ansible:
+
+  # A repository containing ansible playbooks which will be fetched via ansible-pull
+  url: https://github.com/erigrid2/riasc-ansible.git
+
+  # The playbook which should be provision the node
+  playbook: site.yml
+
+  # A path to the Ansible inventory within the repo from above
+  inventory: inventory/erigrid/hosts.yml
+
+#   extra_args:
+#   - --only-if-changed
+
+  # Additional variables which are passed to the Ansible playbook for provisioning
+  variables:
+
+    # The URL of a K3S master provided by your RIasC provider
+    server: https://riasc.fein-aachen.org # changeme!
+
+    # Replace this token with the token provided by your RIasC provider
+    token: XXXXX # changeme!

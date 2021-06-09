@@ -2,6 +2,7 @@
 
 # Settings
 HOSTNAME="${1:-riasc-agent}"
+TOKEN="${2:-XXXXX}"
 
 IMAGE_FILE="2021-05-07-raspios-buster-armhf-lite"
 IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-05-28/${IMAGE_FILE}.zip"
@@ -22,6 +23,13 @@ if [ ! -f ${IMAGE_FILE}.img ]; then
 	echo "Unzipping image..."
 	unzip ${IMAGE_FILE}.zip
 fi
+
+# Prepare config
+cp ../common/riasc.yaml riasc.yaml
+sed -i \
+	-e "s/XXXXX/${TOKEN}/g" \
+	-e "s/riasc-agent/${HOSTNAME}/g" \
+	riasc.yaml
 
 # Patching image
 echo "Patching image with guestfish..."
