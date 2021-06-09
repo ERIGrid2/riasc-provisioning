@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set +e
+
 SCRIPT_PATH=$(dirname $(realpath "${BASH_SOURCE[0]}"))
 pushd ${SCRIPT_PATH}
 
