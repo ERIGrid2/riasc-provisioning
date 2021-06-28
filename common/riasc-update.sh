@@ -77,6 +77,14 @@ fi
 
 log "Starting RIasC update at $(date)"
 
+# Update system hostname to match Ansible inventory
+HOSTNAME=$(config .hostname)
+log "Updating hostname to: ${HOSTNAME}"
+echo ${HOSTNAME} > /etc/hostname
+sed -ie "s/raspberrypi/${HOSTNAME}/g" /etc/hosts
+hostnamectl set-hostname ${HOSTNAME}
+log "Renewing DHCP lease to reflect new hostname"
+dhclient -r
 
 # Install yq
 if ! command -v yq &> /dev/null; then
@@ -103,13 +111,6 @@ if ! command -v ansible &> /dev/null; then
 			;;
 	esac
 fi
-
-# Update system hostname to match Ansible inventory
-HOSTNAME=$(config .hostname)
-log "Updating hostname to: ${HOSTNAME}"
-echo ${HOSTNAME} > /etc/hostname
-sed -ie "s/raspberrypi/${HOSTNAME}/g" /etc/hosts
-hostnamectl set-hostname ${HOSTNAME}
 
 # Import GPG keys for verifying Ansible commits
 log "Importing GPG keys for verify Ansible commits"
