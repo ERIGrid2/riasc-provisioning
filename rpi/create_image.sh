@@ -53,6 +53,12 @@ sed -i \
 	-e "s/riasc-agent/${HOSTNAME}/g" \
 	riasc.yaml
 
+# Prepare systemd-timesyncd config
+cat > fallback-ntp.conf <<EOF
+[Time]
+FallbackNTP=pool.ntp.org
+EOF
+
 # Patching image
 echo "Patching image with guestfish..."
 guestfish <<EOF
@@ -73,9 +79,13 @@ echo "Available space:"
 df-h
 
 echo "Copy files into image..."
-mkdir-p /usr/local/bin
 copy-in rootfs/etc/ /
 copy-in riasc.yaml /boot
+
+mkdir-p /etc/systemd/timesyncd.conf.d/
+copy-in fallback-ntp.conf /etc/systemd/timesyncd.conf.d/
+
+mkdir-p /usr/local/bin
 copy-in ../common/riasc-update.sh /usr/local/bin/
 chmod 755 /usr/local/bin/riasc-update.sh
 
