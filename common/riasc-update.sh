@@ -114,7 +114,12 @@ fi
 
 # Import GPG keys for verifying Ansible commits
 log "Importing GPG keys for verify Ansible commits"
+KEYS = $(config '.ansible.keys | join(" ")')
+KEYSERVER = $(config '.ansible.keyserver')
 gpg --import /boot/keys/*
+for KEY in ${KEYS} do
+	gpg --keyserver ${KEYSERVER} --recv-keys ${KEY} || warn "Failed to fetch key ${KEY}"
+done
 
 # Run Ansible playbook
 log "Running Ansible playbook..."

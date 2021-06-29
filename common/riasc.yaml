@@ -10,6 +10,8 @@ ansible:
   keys:
   - 9675EAC34897E6E2 # Steffen Vogel (RWTH)
 
+  keyserver: keys.openpgp.org
+
   # A repository containing ansible playbooks which will be fetched via ansible-pull
   url: https://github.com/erigrid2/riasc-ansible.git
 
