@@ -60,10 +60,10 @@ if ! yq eval true ${CONFIG_FILE} > /dev/null; then
 fi
 
 # Wait for internet connectivity
-SERVER="https://fein-aachen.org"
+SERVER="http://github.com"
 TIMEOUT=10
 COUNTER=0
-while (( COUNTER < TIMEOUT )) && ! wget -q -O /dev/null ${SERVER}; do
+while (( COUNTER < TIMEOUT )) && ! wget --quiet --output-document=/dev/null --max-redirect=0 ${SERVER}; do
     echo "Waiting for network..."
     sleep 1
     (( COUNTER++ ))
