@@ -59,6 +59,10 @@ cat > fallback-ntp.conf <<EOF
 FallbackNTP=pool.ntp.org
 EOF
 
+# Download PGP keys for verifying Ansible Git commits
+mkdir -p keys
+wget -P keys https://keys.openpgp.org/vks/v1/by-fingerprint/09BE3BAE8D55D4CD8579285A9675EAC34897E6E2 # Steffen Vogel (RWTH)
+
 # Patching image
 echo "Patching image with guestfish..."
 guestfish <<EOF
@@ -88,6 +92,8 @@ copy-in fallback-ntp.conf /etc/systemd/timesyncd.conf.d/
 mkdir-p /usr/local/bin
 copy-in ../common/riasc-update.sh /usr/local/bin/
 chmod 755 /usr/local/bin/riasc-update.sh
+
+copy-in keys/ /boot/keys/
 
 echo "Enable SSH on boot..."
 touch /boot/ssh

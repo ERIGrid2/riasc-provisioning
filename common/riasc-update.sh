@@ -114,7 +114,7 @@ fi
 
 # Import GPG keys for verifying Ansible commits
 log "Importing GPG keys for verify Ansible commits"
-gpg --keyserver keys.gnupg.net --recv-keys $(config '.ansible.keys | join(" ")')
+gpg --import /boot/keys/*
 
 # Run Ansible playbook
 log "Running Ansible playbook..."
