@@ -9,10 +9,10 @@ pushd ${SCRIPT_PATH}
 HOSTNAME="${1:-riasc-agent}"
 TOKEN="${2:-XXXXX}"
 
-IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-05-28/${IMAGE_FILE}.zip"
-
 IMAGE_FILE="2021-05-07-raspios-buster-armhf-lite"
 RIASC_IMAGE_FILE="$(date +%Y-%m-%d)-riasc-raspios-buster-armhf-lite"
+
+IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-05-28/${IMAGE_FILE}.zip"
 
 function check_command() {
 	if ! command -v $1 &> /dev/null; then
@@ -34,7 +34,7 @@ check_command zip
 
 # Download image
 if [ ! -f ${IMAGE_FILE}.zip ]; then
-	echo "Downloading image.."
+	echo "Downloading image..."
 	wget ${IMAGE_URL}
 fi
 
@@ -60,6 +60,7 @@ FallbackNTP=pool.ntp.org
 EOF
 
 # Download PGP keys for verifying Ansible Git commits
+echo "Download PGP keys..."
 mkdir -p keys
 wget -P keys https://keys.openpgp.org/vks/v1/by-fingerprint/09BE3BAE8D55D4CD8579285A9675EAC34897E6E2 # Steffen Vogel (RWTH)
 
@@ -93,7 +94,7 @@ mkdir-p /usr/local/bin
 copy-in ../common/riasc-update.sh /usr/local/bin/
 chmod 755 /usr/local/bin/riasc-update.sh
 
-copy-in keys/ /boot/keys/
+copy-in keys/ /boot/
 
 echo "Enable SSH on boot..."
 touch /boot/ssh

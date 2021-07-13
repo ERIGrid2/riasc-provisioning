@@ -13,7 +13,7 @@ ansible:
   keyserver: keys.openpgp.org
 
   # A repository containing ansible playbooks which will be fetched via ansible-pull
-  url: https://github.com/erigrid2/riasc-ansible.git
+  url: git://github.com/erigrid2/riasc-ansible.git
 
   # The playbook which should be provision the node
   playbook: site.yml
