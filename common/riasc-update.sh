@@ -58,7 +58,7 @@ elif [ -f /etc/lsb-release ]; then
 	OS=${DISTRIB_ID}
 	VER=${DISTRIB_RELEASE}
 else
-	die "Failed to determine distro"
+	die "Failed to determine Linux distribution"
 fi
 
 # Detect architecture
@@ -67,11 +67,6 @@ case $(uname -m) in
 	armv*)   ARCH="arm" ;;
 	x86_64)  ARCH="amd64" ;;
 esac
-
-# Validate config
-if ! yq eval true ${CONFIG_FILE} > /dev/null; then
-	die "Failed to parse config file: ${CONFIG_FILE}"
-fi
 
 # Wait for internet connectivity
 SERVER="https://github.com"
@@ -84,19 +79,6 @@ done
 if (( COUNTER == TIMEOUT )); then
 	die "Failed to get internet connectivity. Aborting"
 fi
-
-log "Starting RIasC update at $(date)"
-
-# Update system hostname to match Ansible inventory
-HOSTNAME=$(config .hostname)
-
-log "Updating hostname to: ${HOSTNAME}"
-echo ${HOSTNAME} > /etc/hostname
-sed -ie "s/raspberrypi/${HOSTNAME}/g" /etc/hosts
-hostnamectl set-hostname ${HOSTNAME}
-
-log "Renewing DHCP lease to reflect new hostname"
-dhclient -r
 
 # Install yq
 if ! command -v yq &> /dev/null; then
@@ -131,6 +113,25 @@ if ! command -v ansible &> /dev/null; then
 			;;
 	esac
 fi
+
+# Validate config
+log "Validating config file..."
+if ! config true > /dev/null; then
+	die "Failed to parse config file: ${CONFIG_FILE}"
+fi
+
+log "Starting RIasC update at $(date)"
+
+# Update system hostname to match Ansible inventory
+HOSTNAME=$(config .hostname)
+
+log "Updating hostname to: ${HOSTNAME}"
+echo ${HOSTNAME} > /etc/hostname
+sed -ie "s/raspberrypi/${HOSTNAME}/g" /etc/hosts
+hostnamectl set-hostname ${HOSTNAME}
+
+log "Renewing DHCP lease to reflect new hostname"
+dhclient -r
 
 # Import GPG keys for verifying Ansible commits
 log "Importing GPG keys for verify Ansible commits"
