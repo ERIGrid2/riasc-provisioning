@@ -53,6 +53,10 @@ function log() {
 	echo -e "\e[32m###\e[0m $1"
 }
 
+function warn() {
+	echo -e "\e[33m#\e[0m $1"
+}
+
 # Validate config
 if ! yq eval true ${CONFIG_FILE} > /dev/null; then
 	echo "Failed to parse config file: ${CONFIG_FILE}"
