@@ -2,3 +2,4 @@
 *.img
 riasc.yaml
 fallback-ntp.conf
+keys/
