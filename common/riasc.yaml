@@ -8,7 +8,7 @@ hostname: riasc-agent # changeme!
 ansible:
   # List of PGP keys which are used to verify the commits in the Ansible repo
   keys:
-  - 9675EAC34897E6E2 # Steffen Vogel (RWTH)
+  - 09BE3BAE8D55D4CD8579285A9675EAC34897E6E2 # Steffen Vogel (RWTH)
 
   keyserver: keys.openpgp.org
 
@@ -21,8 +21,8 @@ ansible:
   # A path to the Ansible inventory within the repo from above
   inventory: inventory/erigrid/hosts.yml
 
-#   extra_args:
-#   - --only-if-changed
+  # extra_args:
+  # - --only-if-changed
 
   # Additional variables which are passed to the Ansible playbook for provisioning
   variables:
