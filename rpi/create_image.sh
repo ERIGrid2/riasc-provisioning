@@ -62,7 +62,7 @@ EOF
 # Download PGP keys for verifying Ansible Git commits
 echo "Download PGP keys..."
 mkdir -p keys
-wget -P keys https://keys.openpgp.org/vks/v1/by-fingerprint/09BE3BAE8D55D4CD8579285A9675EAC34897E6E2 # Steffen Vogel (RWTH)
+wget -O keys/steffen-vogel.asc https://keys.openpgp.org/vks/v1/by-fingerprint/09BE3BAE8D55D4CD8579285A9675EAC34897E6E2 # Steffen Vogel (RWTH)
 
 # Patching image
 echo "Patching image with guestfish..."
