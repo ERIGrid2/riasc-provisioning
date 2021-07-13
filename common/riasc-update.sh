@@ -101,14 +101,20 @@ dhclient -r
 # Install yq
 if ! command -v yq &> /dev/null; then
 	log "Installing yq"
+
+	declare -A YQ_CHECKSUMS
+	YQ_CHECKSUMS["amd64"]="ec857c8240fda5782c3dd75b54b93196fa496a9bcf7c76979bb192b38f76da31"
+	YQ_CHECKSUMS["arm64"]="efab80a21b0fa80fcac16d98fe4992cdddb1d245bd0e1d4628fd01dee64a10c2"
+	YQ_CHECKSUMS["arm"]="e77a02bddc97483d959464417c144abe5cb3b9ad5189a55d8fcba3a10d4a9f14"
+
 	YQ_BINARY="yq_linux_${ARCH}"
 	YQ_VERSION="v4.7.0"
-	YQ_CHECKSUM="ec857c8240fda5782c3dd75b54b93196fa496a9bcf7c76979bb192b38f76da31"
 	YQ_URL="https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY}"
 
-	wget ${WGET_OPTS} ${YQ_URL} -O /usr/local/bin/yq
- 	echo "${YQ_CHECKSUM} /usr/local/bin/yq" | sha256sum --check --quiet || exit -1
-	chmod +x /usr/local/bin/yq
+	wget ${WGET_OPTS} ${YQ_URL}
+	chmod +x ${YQ_BINARY}
+ 	echo "${YQ_CHECKSUMS[${ARCH}]} ${YQ_BINARY}" | sha256sum --check --quiet || exit -1
+	mv ${YQ_BINARY} /usr/local/bin/yq
 fi
 
 # Install Ansible
