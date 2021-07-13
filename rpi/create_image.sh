@@ -6,8 +6,8 @@ SCRIPT_PATH=$(dirname $(realpath "${BASH_SOURCE[0]}"))
 pushd ${SCRIPT_PATH}
 
 # Settings
-HOSTNAME="${1:-riasc-agent}"
-TOKEN="${2:-XXXXX}"
+NODENAME="${NODENAME:-riasc-agent}"
+TOKEN="${TOKEN:-XXXXX}"
 
 IMAGE_FILE="2021-05-07-raspios-buster-armhf-lite"
 RIASC_IMAGE_FILE="$(date +%Y-%m-%d)-riasc-raspios-buster-armhf-lite"
@@ -22,7 +22,7 @@ function check_command() {
 }
 
 # Show config
-echo "Using hostname: ${HOSTNAME}"
+echo "Using hostname: ${NODENAME}"
 echo "Using token: ${TOKEN}"
 
 # Check that required commands exist
@@ -50,7 +50,7 @@ cp ${IMAGE_FILE}.img ${RIASC_IMAGE_FILE}.img
 cp ../common/riasc.yaml riasc.yaml
 sed -i \
 	-e "s/XXXXX/${TOKEN}/g" \
-	-e "s/riasc-agent/${HOSTNAME}/g" \
+	-e "s/riasc-agent/${NODENAME}/g" \
 	riasc.yaml
 
 # Prepare systemd-timesyncd config
@@ -100,7 +100,7 @@ echo "Enable SSH on boot..."
 touch /boot/ssh
 
 echo "Setting hostname..."
-write /etc/hostname "${HOSTNAME}"
+write /etc/hostname "${NODENAME}"
 
 echo "Enable systemd risac-update service..."
 ln-sf /etc/systemd/system/risac-update.service /etc/systemd/system/multi-user.target.wants/riasc-update.service
