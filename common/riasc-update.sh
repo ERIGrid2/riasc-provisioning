@@ -93,7 +93,7 @@ if ! command -v yq &> /dev/null; then
 	YQ_VERSION="v4.7.0"
 	YQ_URL="https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY}"
 
-	wget -q ${YQ_URL} -O /usr/local/bin/yq
+	wget --quiet ${YQ_URL} -O /usr/local/bin/yq
 	chmod +x /usr/local/bin/yq
 fi
 
