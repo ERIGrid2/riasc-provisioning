@@ -2,28 +2,6 @@
 
 set -e
 
-# Find configuration file
-if [ -z "${CONFIG_FILE}" ]; then
-	for DIR in /boot /etc .; do
-		if [ -f "${DIR}/riasc.yaml" ]; then
-			CONFIG_FILE="${DIR}/riasc.yaml"
-			break
-		fi
-	done
-fi
-echo ${CONFIG_FILE}
-
-# Tee output to syslog
-exec 1> >(logger -st "riasc-update") 2>&1
-
-# TTY handling
-FG_TTY=$(fgconsole)
-TTY=$(tty | sed -n "s|/dev/tty\(.*\)|\1|p")
-if [ -n "${TTY}" ] && (( ${FG_TTY} != ${TTY} )); then
-	chvt ${TTY}
-	reset
-fi
-
 # Helper functions
 function config() {
 	[ -f ${CONFIG_FILE} ] && yq eval "$@" ${CONFIG_FILE}
@@ -42,6 +20,27 @@ function die() {
 	echo -e "\e[31m#\e[0m $1"
 	exit -1
 }
+
+# Find configuration file
+if [ -z "${CONFIG_FILE}" ]; then
+	for DIR in /boot /etc .; do
+		if [ -f "${DIR}/riasc.yaml" ]; then
+			CONFIG_FILE="${DIR}/riasc.yaml"
+			break
+		fi
+	done
+fi
+
+# TTY handling
+FG_TTY=$(fgconsole || echo 0)
+TTY=$(tty | sed -n "s|/dev/tty\(.*\)|\1|p")
+if [ -n "${TTY}" ] && (( ${FG_TTY} != ${TTY} )); then
+	chvt ${TTY}
+	reset
+fi
+
+# Tee output to syslog
+exec 1> >(logger -st "riasc-update") 2>&1
 
 # Detect distro
 if [ -f /etc/os-release ]; then # freedesktop.org and systemd
