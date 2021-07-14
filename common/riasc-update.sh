@@ -13,14 +13,6 @@ if [ -z "${CONFIG_FILE}" ]; then
 fi
 echo ${CONFIG_FILE}
 
-# We disable SSL verification for all commands and rely on PGP signatures
-# As some setup will boot up with a wrong system time which
-# will result cause in all certs to fail verification as they appear to
-# be expired.
-WGET_OPTS="--no-check-certificate --quiet"
-APT_OPTS="--option Acquire::https::Verify-Peer=false -qq"
-YUM_OPTS="--setopt=sslverify=false --quiet --yes"
-
 # Tee output to syslog
 exec 1> >(logger -st "riasc-update") 2>&1
 
@@ -52,17 +44,14 @@ function die() {
 }
 
 # Detect distro
-if [ -f /etc/os-release ]; then
-	# freedesktop.org and systemd
+if [ -f /etc/os-release ]; then # freedesktop.org and systemd
 	. /etc/os-release
 	OS=$NAME
 	VER=$VERSION_ID
-elif type lsb_release >/dev/null 2>&1; then
-	# linuxbase.org
+elif type lsb_release >/dev/null 2>&1; then # linuxbase.org
 	OS=$(lsb_release -si)
 	VER=$(lsb_release -sr)
-elif [ -f /etc/lsb-release ]; then
-	# For some versions of Debian/Ubuntu without lsb_release command
+elif [ -f /etc/lsb-release ]; then # For some versions of Debian/Ubuntu without lsb_release command
 	. /etc/lsb-release
 	OS=${DISTRIB_ID}
 	VER=${DISTRIB_RELEASE}
@@ -78,10 +67,11 @@ case $(uname -m) in
 esac
 
 # Wait for internet connectivity
+log "Wait for internet connectivity"
 SERVER="https://github.com"
 TIMEOUT=600
 COUNTER=0
-while (( COUNTER++ < TIMEOUT )) && ! wget ${WGET_OPTS} --output-document=/dev/null ${SERVER}; do
+while (( COUNTER++ < TIMEOUT )) && ! wget --no-check-certificate --quiet --output-document=/dev/null ${SERVER}; do
     echo "Waiting for network..."
     sleep 1
 done
@@ -89,36 +79,36 @@ if (( COUNTER == TIMEOUT )); then
 	die "Failed to get internet connectivity. Aborting"
 fi
 
-# Install yq
+# Force time-sync via HTTP if NTP time-sync fails
+if ! timeout 10 /usr/lib/systemd/systemd-time-wait-sync 2&>1 > /dev/null; then
+	log "Falling back to HTTP time-synchronization as NTP is broken"
+	date -s "$(curl -s --head http://google.com | grep ^Date: | sed 's/Date: //g')"
+fi
+
+# Installing yq
 if ! command -v yq &> /dev/null; then
 	log "Installing yq"
-
-	declare -A YQ_CHECKSUMS
-	YQ_CHECKSUMS["amd64"]="ec857c8240fda5782c3dd75b54b93196fa496a9bcf7c76979bb192b38f76da31"
-	YQ_CHECKSUMS["arm64"]="efab80a21b0fa80fcac16d98fe4992cdddb1d245bd0e1d4628fd01dee64a10c2"
-	YQ_CHECKSUMS["arm"]="e77a02bddc97483d959464417c144abe5cb3b9ad5189a55d8fcba3a10d4a9f14"
 
 	YQ_BINARY="yq_linux_${ARCH}"
 	YQ_VERSION="v4.7.0"
 	YQ_URL="https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY}"
 
-	wget ${WGET_OPTS} ${YQ_URL}
+	wget --quiet ${YQ_URL}
 	chmod +x ${YQ_BINARY}
- 	echo "${YQ_CHECKSUMS[${ARCH}]} ${YQ_BINARY}" | sha256sum --check --quiet || exit -1
 	mv ${YQ_BINARY} /usr/local/bin/yq
 fi
 
-# Install Ansible
+# Installing required packages
 log "Installing required packages"
 if ! command -v ansible &> /dev/null; then
 	case ${OS} in
 		Fedora|CentOS|'Red Hat Enterprise Linux')
-			yum ${YUM_OPTS} install ansible git
+			yum --quiet --yes install ansible git htpdate
 			;;
 
 		Debian|Ubuntu|'Raspbian GNU/Linux')
-			apt-get ${APT_OPTS} update
-			apt-get ${APT_OPTS} install ansible git
+			apt-get -qq update
+			apt-get -qq install ansible git htpdate
 			;;
 	esac
 fi
