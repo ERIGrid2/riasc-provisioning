@@ -2,7 +2,16 @@
 
 set -e
 
-CONFIG_FILE=${CONFIG_FILE:-/boot/riasc.yaml}
+# Find configuration file
+if [ -z "${CONFIG_FILE}" ]; then
+	for DIR in /boot /etc .; do
+		if [ -f "${DIR}/riasc.yaml" ]; then
+			CONFIG_FILE="${DIR}/riasc.yaml"
+			break
+		fi
+	done
+fi
+echo ${CONFIG_FILE}
 
 # We disable SSL verification for all commands and rely on PGP signatures
 # As some setup will boot up with a wrong system time which
