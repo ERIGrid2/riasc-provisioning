@@ -135,7 +135,9 @@ dhclient -r
 log "Importing GPG keys for verify Ansible commits"
 KEYS=$(config '.ansible.keys | join(" ")')
 KEYSERVER=$(config '.ansible.keyserver')
-gpg --import /boot/keys/*
+if [ -d /boot/keys/ ]; then
+	gpg --import /boot/keys/*
+fi
 for KEY in ${KEYS}; do
 	gpg --keyserver ${KEYSERVER} --recv-keys ${KEY} || warn "Failed to fetch key ${KEY}"
 done
