@@ -21,16 +21,6 @@ function die() {
 	exit -1
 }
 
-# Find configuration file
-if [ -z "${CONFIG_FILE}" ]; then
-	for DIR in /boot /etc .; do
-		if [ -f "${DIR}/riasc.yaml" ]; then
-			CONFIG_FILE="${DIR}/riasc.yaml"
-			break
-		fi
-	done
-fi
-
 # TTY handling
 FG_TTY=$(fgconsole || echo 0)
 TTY=$(tty | sed -n "s|/dev/tty\(.*\)|\1|p")
@@ -112,6 +102,16 @@ if ! command -v ansible &> /dev/null; then
 	esac
 fi
 
+# Find configuration file
+if [ -z "${CONFIG_FILE}" ]; then
+	for DIR in /boot /etc .; do
+		if [ -f "${DIR}/riasc.yaml" ]; then
+			CONFIG_FILE="${DIR}/riasc.yaml"
+			break
+		fi
+	done
+fi
+
 # Validate config
 log "Validating config file..."
 if ! config true > /dev/null; then
@@ -143,6 +143,11 @@ for KEY in ${KEYS}; do
 done
 
 # Gather Ansible options
+ANSIBLE_OPTS=" --url $(config .ansible.url)"
+ANSIBLE_OPTS+=" --extra-vars $(config --tojson --indent 0 .ansible.variables)"
+ANSIBLE_OPTS+=" --inventory $(config .ansible.inventory)"
+ANSIBLE_OPTS+=" $(config '.ansible.extra_args // [ ] | join(" ")')"
+
 if [ $(config '.ansible.verify_commit // true') == "true" ]; then
 	ANSIBLE_OPTS+="--verify-commit"
 fi
@@ -150,13 +155,7 @@ fi
 # Run Ansible playbook
 log "Running Ansible playbook..."
 ANSIBLE_FORCE_COLOR=1 \
-ansible-pull \
-	${ANSIBLE_OPTS} \
-	--url $(config .ansible.url) \
-	--extra-vars $(config --tojson --indent 0 .ansible.variables) \
-	--inventory $(config .ansible.inventory) \
-	$(config '.ansible.extra_args // [ ] | join(" ")') \
-	$(config '.ansible.playbook')
+ansible-pull ${ANSIBLE_OPTS} $(config '.ansible.playbook // "site.yml"')
 
 # Print node details
 log "Node details:"
