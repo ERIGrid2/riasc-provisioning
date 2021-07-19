@@ -140,11 +140,16 @@ for KEY in ${KEYS}; do
 	gpg --keyserver ${KEYSERVER} --recv-keys ${KEY} || warn "Failed to fetch key ${KEY}"
 done
 
+# Gather Ansible options
+if [ $(config '.ansible.verify_commit // true') == "true" ]; then
+	ANSIBLE_OPTS+="--verify-commit"
+fi
+
 # Run Ansible playbook
 log "Running Ansible playbook..."
 ANSIBLE_FORCE_COLOR=1 \
 ansible-pull \
-	--verify-commit \
+	${ANSIBLE_OPTS} \
 	--url $(config .ansible.url) \
 	--extra-vars $(config --tojson --indent 0 .ansible.variables) \
 	--inventory $(config .ansible.inventory) \
