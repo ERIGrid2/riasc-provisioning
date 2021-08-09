@@ -103,7 +103,8 @@ echo "Setting hostname..."
 write /etc/hostname "${NODENAME}"
 
 echo "Enable systemd risac services..."
-ln-sf /etc/systemd/system/risac-*.service /etc/systemd/system/multi-user.target.wants/riasc-set-hostname.service
+ln-sf /etc/systemd/system/risac-update.service /etc/systemd/system/multi-user.target.wants/riasc-update.service
+ln-sf /etc/systemd/system/risac-set-hostname.service /etc/systemd/system/multi-user.target.wants/riasc-set-hostname.service
 EOF
 
 # Zip image
