@@ -24,5 +24,10 @@ HOSTNAME=$(sed -n -e 's/#.*//;s/^hostname: \(.*\)/\1/p' ${CONFIG_FILE})
 log "Setting system hostname from RIasC configuration file"
 
 log "Updating hostname to: ${HOSTNAME}"
+
+# Fix for broken permissions
+# See: https://github.com/coreos/bugs/issues/941#issuecomment-151674260
+chown root:root /etc
+
 hostnamectl set-hostname ${HOSTNAME}
 sed -ie "s/raspberrypi/${HOSTNAME}/g" /etc/hosts
