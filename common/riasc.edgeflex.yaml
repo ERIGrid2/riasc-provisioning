@@ -1,0 +1,37 @@
+---
+# RIasC configuration file
+# See also: https://erigrid2.github.io/riasc/docs/setup/config
+
+# A unique hostname to identify the node
+hostname: edgepmu
+
+ansible:
+  # List of PGP keys which are used to verify the commits in the Ansible repo
+  keys: []
+
+  keyserver: keys.openpgp.org
+
+  # A repository containing ansible playbooks which will be fetched via ansible-pull
+  url: https://git.rwth-aachen.de/acs/public/software/pmu/pmu-ansible.git
+
+  verify_commit: false
+
+  # The playbook which should be provision the node
+  playbook: playbook.yml
+
+  # A path to the Ansible inventory within the repo from above
+  inventory: inventory/edgeflex/hosts.yml
+
+  # extra_args:
+  # - --only-if-changed
+
+  # Additional variables which are passed to the Ansible playbook for provisioning
+  variables:
+
+    # A list of SSH keys which will be added to the 'pi' user
+    #additional_ssh_keys:
+    #- "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDOmn+2RUo3XrHmm7h3w647+f6DlV5wXzBJSYLa7NBVlEasBd6Gxp4HDh1iKmNgZrneqXWOAH19P41k1qiwAx8/gUYDlnoah30RWp3qlXXIN+RUCUyUx34tatGTSDynuAyYKAOg0CawK066pSaRsMan2JdhL+r0YAKDXswMU8NVdc32AFTJLrZyGzlrFn4y7hSgHCtOy2RvoULWcjVtcF0GLuSr3WCLUwm1Qy83tft++5FJCcNtg986or5OOeWtZxFU035Q+2Khd2JqyweFTmCMRXEXAzUMv6Lqxuw19qpK4eOOU59oybXlga5yLFZY0CVBK8XVVnA0pkCnabQPHvVJWL7tcDVvzfnd0JdHpQ6oMsYFM7MdncKbHay5/g/tUz34WXPPAPWvciyLkI1NMV++JpaPeMEkAvrsUUZMko+4EQ75ZErUOY3PAJG+2Jilb79QTRMzpCVWfQ0A/Zx1O7Y0sLks+f5VDJaPnHl0vXetFIkEpv9XjomNZgp81m3XRItJh0+BwGqoYtc+MTLelAu0oap1LyHSbpBWGzKxi2tW9VOrX7/pI18f0AhhCc/BG/6UFjMhyYzGj9wg6HWAo1N8hlhdeuNic004hbADX7qzXJMyVEol5AL0rpu3j3j5zTeULY3HxiE+FC6yKg1DKvcxHkmwXoWJYwW9yAgYDyjhbw==" # Manuel Pitz
+    # Set this to true if you want to login via SSH keys only.
+    # If you dont have an SSH key, set this to false.
+    # Important: Dont forget to change the default password after your first login!
+    disable_password_login: false

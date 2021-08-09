@@ -1,5 +1,7 @@
 *.zip
 *.img
+*.xz
+patch.fish
 riasc.yaml
 fallback-ntp.conf
 keys/
