@@ -143,8 +143,8 @@ for KEY in ${KEYS}; do
 done
 
 # Gather Ansible options
+ANSIBLE_EXTRA_VARS="$(config --tojson --indent 0 .ansible.variables)"
 ANSIBLE_OPTS=" --url $(config .ansible.url)"
-ANSIBLE_OPTS+=" --extra-vars $(config --tojson --indent 0 .ansible.variables)"
 ANSIBLE_OPTS+=" --inventory $(config .ansible.inventory)"
 ANSIBLE_OPTS+=" $(config '.ansible.extra_args // [ ] | join(" ")')"
 
@@ -155,7 +155,7 @@ fi
 # Run Ansible playbook
 log "Running Ansible playbook..."
 ANSIBLE_FORCE_COLOR=1 \
-ansible-pull ${ANSIBLE_OPTS} $(config '.ansible.playbook // "site.yml"')
+ansible-pull ${ANSIBLE_OPTS} --extra-vars "${ANSIBLE_EXTRA_VARS}" $(config '.ansible.playbook // "site.yml"')
 
 # Print node details
 log "Node details:"
