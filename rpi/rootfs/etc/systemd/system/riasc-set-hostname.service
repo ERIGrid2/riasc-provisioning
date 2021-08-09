@@ -1,10 +1,9 @@
 [Unit]
-Description=Update RIasC
+Description=Set system hostname from RIasC config
+ConditionPathIsReadWrite=/etc
 
 Before=network-pre.target
 Wants=network-pre.target
-
-ConditionPathIsReadWrite=/etc
 
 [Service]
 Type=oneshot
