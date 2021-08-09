@@ -105,6 +105,10 @@ write /etc/hostname "${NODENAME}"
 echo "Enable systemd risac services..."
 ln-sf /etc/systemd/system/risac-update.service /etc/systemd/system/multi-user.target.wants/riasc-update.service
 ln-sf /etc/systemd/system/risac-set-hostname.service /etc/systemd/system/multi-user.target.wants/riasc-set-hostname.service
+
+echo "Disable daily APT timers"
+rm /etc/systemd/system/timers.target.wants/apt-daily-upgrade.timer
+rm /etc/systemd/system/timers.target.wants/apt-daily.timer
 EOF
 
 # Zip image
