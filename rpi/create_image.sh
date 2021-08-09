@@ -9,10 +9,33 @@ pushd ${SCRIPT_PATH}
 NODENAME="${NODENAME:-riasc-agent}"
 TOKEN="${TOKEN:-XXXXX}"
 
-IMAGE_FILE="2021-05-07-raspios-buster-armhf-lite"
-RIASC_IMAGE_FILE="$(date +%Y-%m-%d)-riasc-raspios-buster-armhf-lite"
+FLAVOR=${FLAVOR:-erigrid}
 
-IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-05-28/${IMAGE_FILE}.zip"
+case ${FLAVOR} in
+	edgeflex)
+		OS="ubuntu"
+		;;
+
+	erigrid)
+		OS="raspios"
+		;;
+esac
+
+case ${OS} in
+	ubuntu)
+		IMAGE_FILE="ubuntu-20.04.2-preinstalled-server-arm64+raspi"
+		IMAGE_SUFFIX="img.xz"
+		IMAGE_URL="https://cdimage.ubuntu.com/releases/20.04.2/release/${IMAGE_FILE}.${IMAGE_SUFFIX}"
+		;;
+
+	raspios)
+		IMAGE_FILE="2021-05-07-raspios-buster-armhf-lite"
+		IMAGE_SUFFIX="zip"
+		IMAGE_URL="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-05-28/${IMAGE_FILE}.${IMAGE_SUFFIX}"
+		;;
+esac
+
+RIASC_IMAGE_FILE="$(date +%Y-%m-%d)-riasc-${OS}"
 
 function check_command() {
 	if ! command -v $1 &> /dev/null; then
@@ -31,9 +54,12 @@ check_command guestfish
 check_command wget
 check_command unzip
 check_command zip
+check_command xz
+# dnf install guestfs-tools wget zip xz
+# apt-get install libguestfs-tools wget unzip zip xz-utils
 
 # Download image
-if [ ! -f ${IMAGE_FILE}.zip ]; then
+if [ ! -f ${IMAGE_FILE}.${IMAGE_SUFFIX} ]; then
 	echo "Downloading image..."
 	wget ${IMAGE_URL}
 fi
@@ -41,13 +67,31 @@ fi
 # Unzip image
 if [ ! -f ${IMAGE_FILE}.img ]; then
 	echo "Unzipping image..."
-	unzip ${IMAGE_FILE}.zip
+	case ${IMAGE_SUFFIX} in
+		img.xz)
+			unxz --keep --threads=0 ${IMAGE_FILE}.${IMAGE_SUFFIX}
+			;;
+		zip)
+			unzip ${IMAGE_FILE}.${IMAGE_SUFFIX}
+			;;
+	esac
 fi
 
+echo "Copying image..."
 cp ${IMAGE_FILE}.img ${RIASC_IMAGE_FILE}.img
 
 # Prepare config
-cp ../common/riasc.yaml riasc.yaml
+case ${FLAVOR} in
+	erigrid)
+		CONFIG_FILE="riasc.yaml"
+		;;
+	*)
+		CONFIG_FILE="riasc.${FLAVOR}.yaml"
+		;;
+esac
+cp ../common/${CONFIG_FILE} riasc.yaml
+
+# Patch config
 sed -i \
 	-e "s/XXXXX/${TOKEN}/g" \
 	-e "s/riasc-agent/${NODENAME}/g" \
@@ -65,8 +109,7 @@ mkdir -p keys
 wget -O keys/steffen-vogel.asc https://keys.openpgp.org/vks/v1/by-fingerprint/09BE3BAE8D55D4CD8579285A9675EAC34897E6E2 # Steffen Vogel (RWTH)
 
 # Patching image
-echo "Patching image with guestfish..."
-guestfish <<EOF
+cat <<EOF > patch.fish
 echo "Loading image..."
 add ${RIASC_IMAGE_FILE}.img
 
@@ -110,6 +153,16 @@ echo "Disable daily APT timers"
 rm /etc/systemd/system/timers.target.wants/apt-daily-upgrade.timer
 rm /etc/systemd/system/timers.target.wants/apt-daily.timer
 EOF
+
+if [ "${FLAVOR}" = "edgeflex" -a "${OS}" = "ubuntu" ]; then
+cat <<EOF >> patch.fish
+echo "Disable Grub boot"
+write-append /boot/usercfg.txt "[all]\ninitramfs initrd.img followkernel\nkernel=vmlinuz\n"
+EOF
+fi
+
+echo "Patching image with guestfish..."
+guestfish < patch.fish
 
 # Zip image
 echo "Zipping image..."

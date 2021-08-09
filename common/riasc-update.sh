@@ -104,7 +104,7 @@ fi
 
 # Find configuration file
 if [ -z "${CONFIG_FILE}" ]; then
-	for DIR in /boot /etc .; do
+	for DIR in /boot /boot/firmware /etc .; do
 		if [ -f "${DIR}/riasc.yaml" ]; then
 			CONFIG_FILE="${DIR}/riasc.yaml"
 			break
@@ -151,7 +151,7 @@ ANSIBLE_OPTS=" --url $(config .ansible.url)"
 ANSIBLE_OPTS+=" --inventory $(config .ansible.inventory)"
 ANSIBLE_OPTS+=" $(config '.ansible.extra_args // [ ] | join(" ")')"
 
-if [ $(config '.ansible.verify_commit // true') == "true" ]; then
+if [ $(config '.ansible.verify_commit') == "true" ]; then
 	ANSIBLE_OPTS+="--verify-commit"
 fi
 
