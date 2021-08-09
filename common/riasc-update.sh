@@ -58,10 +58,10 @@ esac
 # Wait for internet connectivity
 log "Wait for internet connectivity"
 SERVER="https://github.com"
-TIMEOUT=600
-COUNTER=0
-while (( COUNTER++ < TIMEOUT )) && ! wget --no-check-certificate --quiet --output-document=/dev/null ${SERVER}; do
-    echo "Waiting for network..."
+TRIES=60
+TIMEOUT=10 # seconds
+while (( TRIES-- > 0 )) && ! wget --timeout=${TIMEOUT} --no-check-certificate --quiet --output-document=/dev/null ${SERVER}; do
+    echo "Waiting for network... ${TRIES} tries left.."
     sleep 1
 done
 if (( COUNTER == TIMEOUT )); then
