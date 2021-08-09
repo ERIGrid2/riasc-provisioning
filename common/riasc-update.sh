@@ -139,7 +139,9 @@ if [ -d /boot/keys/ ]; then
 	gpg --import /boot/keys/*
 fi
 for KEY in ${KEYS}; do
-	gpg --keyserver ${KEYSERVER} --recv-keys ${KEY} || warn "Failed to fetch key ${KEY}"
+	timeout ${TIMEOUT} gpg --keyserver ${KEYSERVER} --recv-keys ${KEY} || \
+	wget --timeout=${TIMEOUT} --quiet --output-document=- https://keys.openpgp.org/vks/v1/by-fingerprint/${KEY} | gpg --import || \
+	warn "Failed to fetch key ${KEY}"
 done
 
 # Gather Ansible options
