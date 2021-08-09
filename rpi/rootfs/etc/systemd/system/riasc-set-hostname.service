@@ -1,0 +1,16 @@
+[Unit]
+Description=Update RIasC
+
+Before=network-pre.target
+Wants=network-pre.target
+
+ConditionPathIsReadWrite=/etc
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+ExecStart=/usr/local/bin/riasc-set-hostname.sh
+
+[Install]
+WantedBy=multi-user.target

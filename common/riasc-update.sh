@@ -123,13 +123,14 @@ log "Starting RIasC update at $(date)"
 # Update system hostname to match Ansible inventory
 HOSTNAME=$(config .hostname)
 
-log "Updating hostname to: ${HOSTNAME}"
-echo ${HOSTNAME} > /etc/hostname
-sed -ie "s/raspberrypi/${HOSTNAME}/g" /etc/hosts
-hostnamectl set-hostname ${HOSTNAME}
+if [ $(hostname) != "${HOSTNAME}" ]; then
+	log "Updating hostname to: ${HOSTNAME}"
+	hostnamectl set-hostname ${HOSTNAME}
+	sed -ie "s/raspberrypi/${HOSTNAME}/g" /etc/hosts
 
-log "Renewing DHCP lease to reflect new hostname"
-dhclient -r
+	log "Renewing DHCP lease to reflect new hostname"
+	dhclient -r
+fi
 
 # Import GPG keys for verifying Ansible commits
 log "Importing GPG keys for verify Ansible commits"

@@ -91,8 +91,8 @@ mkdir-p /etc/systemd/timesyncd.conf.d/
 copy-in fallback-ntp.conf /etc/systemd/timesyncd.conf.d/
 
 mkdir-p /usr/local/bin
-copy-in ../common/riasc-update.sh /usr/local/bin/
-chmod 755 /usr/local/bin/riasc-update.sh
+copy-in ../common/riasc-update.sh ../common/riasc-set-hostname.sh /usr/local/bin/
+glob chmod 755 /usr/local/bin/riasc-*.sh
 
 copy-in keys/ /boot/
 
@@ -102,8 +102,8 @@ touch /boot/ssh
 echo "Setting hostname..."
 write /etc/hostname "${NODENAME}"
 
-echo "Enable systemd risac-update service..."
-ln-sf /etc/systemd/system/risac-update.service /etc/systemd/system/multi-user.target.wants/riasc-update.service
+echo "Enable systemd risac services..."
+ln-sf /etc/systemd/system/risac-*.service /etc/systemd/system/multi-user.target.wants/riasc-set-hostname.service
 EOF
 
 # Zip image
