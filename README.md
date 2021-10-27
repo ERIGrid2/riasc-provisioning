@@ -24,7 +24,7 @@ See: https://riasc.eu/docs/setup/agent/manual
 
 ## Credits
 
-- [Steffen Vogel](https://github.com/stv0g) [📧](mailto:post@steffenvogel.de)
+- [Steffen Vogel](https://github.com/stv0g) [📧](mailto:post@steffenvogel.de), [Institute for Automation of Complex Power Systems](https://www.acs.eonerc.rwth-aachen.de), [RWTH Aachen University](https://www.rwth-aachen.de)
 
 ### Funding acknowledment
 

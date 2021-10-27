@@ -145,6 +145,11 @@ touch /boot/ssh
 echo "Setting hostname..."
 write /etc/hostname "${NODENAME}"
 
+echo "Updating os-release"
+write-append /etc/os-release "VARIANT=\"RIasC\"\n"
+write-append /etc/os-release "BUILD_ID=\"$(date)\"\n"
+write-append /etc/os-release "DOCUMENTATION_URL=\"https://riasc.eu\"\n"
+
 echo "Enable systemd risac services..."
 ln-sf /etc/systemd/system/risac-update.service /etc/systemd/system/multi-user.target.wants/riasc-update.service
 ln-sf /etc/systemd/system/risac-set-hostname.service /etc/systemd/system/multi-user.target.wants/riasc-set-hostname.service
