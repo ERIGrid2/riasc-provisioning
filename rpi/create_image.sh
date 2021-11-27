@@ -139,25 +139,36 @@ glob chmod 755 /usr/local/bin/riasc-*.sh
 
 copy-in keys/ /boot/
 
+echo "Disable daily APT timers"
+rm /etc/systemd/system/timers.target.wants/apt-daily-upgrade.timer
+rm /etc/systemd/system/timers.target.wants/apt-daily.timer
+
+echo "Updating os-release"
+write-append /etc/os-release "VARIANT=\"RIasC\"\n"
+write-append /etc/os-release "BUILD_ID=\"$(date)\"\n"
+write-append /etc/os-release "DOCUMENTATION_URL=\"https://riasc.eu\"\n"
+EOF
+
+case ${OS} in
+	ubuntu)
+cat <<EOF >> patch.fish
+copy-in user-data /boot
+EOF
+		;;
+	*)
+cat <<EOF >> patch.fish
 echo "Enable SSH on boot..."
 touch /boot/ssh
 
 echo "Setting hostname..."
 write /etc/hostname "${NODENAME}"
 
-echo "Updating os-release"
-write-append /etc/os-release "VARIANT=\"RIasC\"\n"
-write-append /etc/os-release "BUILD_ID=\"$(date)\"\n"
-write-append /etc/os-release "DOCUMENTATION_URL=\"https://riasc.eu\"\n"
-
 echo "Enable systemd risac services..."
 ln-sf /etc/systemd/system/risac-update.service /etc/systemd/system/multi-user.target.wants/riasc-update.service
 ln-sf /etc/systemd/system/risac-set-hostname.service /etc/systemd/system/multi-user.target.wants/riasc-set-hostname.service
-
-echo "Disable daily APT timers"
-rm /etc/systemd/system/timers.target.wants/apt-daily-upgrade.timer
-rm /etc/systemd/system/timers.target.wants/apt-daily.timer
 EOF
+		;;
+esac
 
 if [ "${FLAVOR}" = "edgeflex" -a "${OS}" = "ubuntu" ]; then
 cat <<EOF >> patch.fish
@@ -168,6 +179,7 @@ fi
 
 echo "Patching image with guestfish..."
 guestfish < patch.fish
+
 
 # Zip image
 echo "Zipping image..."

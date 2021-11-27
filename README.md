@@ -18,6 +18,11 @@ The scripts have been tested with the following operating systems:
 - Ubuntu 20.03
 - Raspbian Buster
 
+## Initial Config
+
+Update the content of riasc.yml and user-data on the boot partion of the sd card
+
+
 ## Usage
 
 See: https://riasc.eu/docs/setup/agent/manual

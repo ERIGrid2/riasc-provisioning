@@ -1,0 +1,35 @@
+#cloud-config
+
+# This is the user-data configuration file for cloud-init. By default this sets
+# up an initial user called "ubuntu" with password "ubuntu", which must be
+# changed at first login. However, many additional actions can be initiated on
+# first boot from this file. The cloud-init documentation has more details:
+#
+# https://cloudinit.readthedocs.io/
+#
+# Some additional examples are provided in comments below the default
+# configuration.
+
+# On first boot, set the (default) ubuntu user's password to "ubuntu" and
+# expire user passwords
+chpasswd:
+  expire: true
+  list:
+  - ubuntu:ubuntu
+
+# Enable password authentication with the SSH daemon
+ssh_pwauth: true
+
+locale: C.UTF-8
+timezone: Europe/Berlin
+hostname: exampleHost
+
+## Run arbitrary commands at rc.local like time
+runcmd:
+ - [ ln, -sf, /etc/systemd/system/risac-update.service, /etc/systemd/system/multi-user.target.wants/riasc-update.service]
+
+power_state:
+  mode: reboot
+  message: Reboot after inital setup
+  timeout: 20
+  condition: True
