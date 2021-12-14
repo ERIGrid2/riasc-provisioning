@@ -40,5 +40,10 @@ ansible:
     # The URL of a K3S master provided by your RIasC provider
     server: https://k3s.riasc.eu/
 
+    labels:
+      riasc.eu/provisioned: "true"
+      topology.kubernetes.io/region: de-rwth-acs
+      riasc.eu/time-sync: ntp
+
     # Replace this token with the token provided by your RIasC provider
     token: XXXXX # changeme!
