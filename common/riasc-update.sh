@@ -92,7 +92,7 @@ log "Installing required packages"
 if ! command -v ansible &> /dev/null; then
 	case ${OS} in
 		Fedora|CentOS|'Red Hat Enterprise Linux')
-			yum --quiet --yes install ansible git
+			yum --quiet --assumeyes install ansible git
 			;;
 
 		Debian|Ubuntu|'Raspbian GNU/Linux')
