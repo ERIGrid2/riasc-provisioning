@@ -1,5 +1,6 @@
 # RIasC Provisioning Scripts
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5603612.svg)](https://doi.org/10.5281/zenodo.5603612)
 [![GitHub](https://img.shields.io/github/license/ERIGrid2/riasc-provisioning)](https://github.com/ERIGrid2/riasc-provisioning/blob/master/LICENSE)
 
 - **Based on:** <https://github.com/k3s-io/k3s-ansible>
